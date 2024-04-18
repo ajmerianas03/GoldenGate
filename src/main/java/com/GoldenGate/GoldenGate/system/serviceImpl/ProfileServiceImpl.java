@@ -53,4 +53,28 @@ public class ProfileServiceImpl implements ProfileService {
         // Find the Profile by userId
         return profileRepository.findByUser_UserId(userId);
     }
+
+
+    @Override
+    public Profile createNewProfile(String jwtToken, Profile newProfile) {
+
+        String userEmail = jwtService.extractUsername(jwtToken);
+        UserDetails userDetails = userDetailsService.loadUserByUsername(userEmail);
+        if (!jwtService.isTokenValid(jwtToken, userDetails)) {
+            throw new InvalidTokenException("Invalid JWT token");
+        }
+
+
+        User user = ((User) userDetails);
+        Profile existingProfile = profileRepository.findByUser_UserId(user.getUserId());
+        if (existingProfile != null) {
+            throw new RuntimeException("Profile already exists for user: " + userEmail);
+        }
+
+        // Set the user to the new profile and save it
+        newProfile.setUser(user);
+        return profileRepository.save(newProfile);
+    }
+
+
 }
