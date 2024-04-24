@@ -19,8 +19,8 @@ public class Profile {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer profileId;
 
-    @Lob
-    private byte[] avatar;
+    @Column(columnDefinition = "TEXT")
+    private String avatar;
 
     @Column(columnDefinition = "TEXT")
     private String bio;
@@ -35,8 +35,8 @@ public class Profile {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @Lob
-    private byte[] backgroundImage;
+    @Column(columnDefinition = "TEXT")
+    private String backgroundImage;
 
     @Enumerated(EnumType.STRING)
     @Column(columnDefinition = "ENUM('Investor', 'Advisor', 'Startup', 'Company', 'User', 'Institute', 'Super Admin', 'Moderator', 'Support Admin')")

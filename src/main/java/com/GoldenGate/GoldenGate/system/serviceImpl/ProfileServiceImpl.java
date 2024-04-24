@@ -56,23 +56,45 @@ public class ProfileServiceImpl implements ProfileService {
 
 
     @Override
-    public Profile createNewProfile(String jwtToken, Profile newProfile) {
+    public Profile createNewProfile(User UserDetails, Profile newProfile) {
 
-        String userEmail = jwtService.extractUsername(jwtToken);
+
+
+
+        //System.out.println("Serviceimpl");
+       /* String userEmail = jwtService.extractUsername(jwtToken);
+        System.out.println("After user email");
+        System.out.println("email"+userEmail);
         UserDetails userDetails = userDetailsService.loadUserByUsername(userEmail);
+        System.out.println("User dtails"+userDetails);
         if (!jwtService.isTokenValid(jwtToken, userDetails)) {
             throw new InvalidTokenException("Invalid JWT token");
         }
 
 
         User user = ((User) userDetails);
+        System.out.println("user data"+user);
+
+
         Profile existingProfile = profileRepository.findByUser_UserId(user.getUserId());
+
         if (existingProfile != null) {
             throw new RuntimeException("Profile already exists for user: " + userEmail);
         }
 
         // Set the user to the new profile and save it
         newProfile.setUser(user);
+
+        */
+        int Userid = UserDetails.getUserId();
+       // System.out.println(" User id in serviceimpl of profile"+Userid);
+        Profile existingProfile = profileRepository.findByUser_UserId(Userid);
+        if (existingProfile != null) {
+            throw new RuntimeException("Profile already exists for user: " );
+        }
+        newProfile.setUser(UserDetails);
+        //System.out.println("new profile object"+newProfile);
+
         return profileRepository.save(newProfile);
     }
 

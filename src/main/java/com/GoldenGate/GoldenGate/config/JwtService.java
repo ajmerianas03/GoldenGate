@@ -20,9 +20,11 @@ public class JwtService {
     private static final String SECRET_KEY = "c852975d99b5c28ddbb1b9f98b3f08482004cfecc4f0dab62d45b5e6c80e8beb";
 
     public String extractUsername(String token) {
+
         return extractClaim(token, Claims::getSubject);
     }
     public <T> T extractClaim(String token , Function<Claims, T> claimsResolver){
+
         final Claims claims = extractAllClaims(token);
         return claimsResolver.apply(claims);
     }
