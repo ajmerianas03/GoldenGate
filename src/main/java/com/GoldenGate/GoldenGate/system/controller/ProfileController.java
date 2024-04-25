@@ -34,7 +34,7 @@ public class ProfileController {
     private final UserRepository repository;
 
     @Autowired
-    public ProfileController(com.GoldenGate.GoldenGate.config.JwtService jwtService, ProfileService profileService, UserDetailsService userDetailsService, ProfileRepository profileRepository, UserRepository repository) {
+    public ProfileController(JwtService jwtService, ProfileService profileService, UserDetailsService userDetailsService, ProfileRepository profileRepository, UserRepository repository) {
         this.JwtService = jwtService;
         this.profileService = profileService;
         this.profileRepository = profileRepository;
