@@ -1,48 +1,165 @@
 package com.GoldenGate.GoldenGate.system.controller;
 
+import com.GoldenGate.GoldenGate.config.JwtService;
+import com.GoldenGate.GoldenGate.repository.UserRepository;
+import com.GoldenGate.GoldenGate.system.DTO.UserSkillDTO;
 import com.GoldenGate.GoldenGate.system.model.UserSkill;
 import com.GoldenGate.GoldenGate.system.service.UserSkillService;
+import com.GoldenGate.GoldenGate.user.User;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
+import java.util.List;
+import java.util.Optional;
+
 @RestController
+@CrossOrigin("http://localhost:3000")
 @RequestMapping("/api/v1/userskills")
 @RequiredArgsConstructor
 public class UserSkillController {
 
     private final UserSkillService userSkillService;
 
+    private final UserRepository repository;
+
+    private final JwtService JwtService;
+
     @PostMapping("")
-    public ResponseEntity<UserSkill> saveUserSkill(@RequestBody UserSkill userSkill) {
-        UserSkill savedUserSkill = userSkillService.saveUserSkill(userSkill);
-        return new ResponseEntity<>(savedUserSkill, HttpStatus.CREATED);
+    public ResponseEntity<UserSkill> saveUserSkill(@NonNull HttpServletRequest request,@NonNull HttpServletResponse response,
+        @NonNull FilterChain filterChain,
+        @RequestBody UserSkill userSkill) throws ServletException, IOException {
+
+        try {
+            //System.out.println("in profile creation");
+            final String authHeader = request.getHeader("Authorization");
+            final String jwt;
+            final String userEmail;
+
+            if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+                filterChain.doFilter(request, response);
+                return null;
+            }
+            //System.out.println("after final variable assign");
+            jwt = authHeader.substring(7);
+            //System.out.println(jwt+" this is jwt");
+            userEmail = JwtService.extractUsername(jwt);
+            // System.out.println(userEmail+" this is user email");
+            if (userEmail != null) {
+
+                // System.out.println("in if user load by optional");
+                Optional<User> optionalUser = repository.findByEmail(userEmail);
+                System.out.println("optionalUser " + optionalUser);
+                if (!optionalUser.isPresent()) {
+                    throw new RuntimeException("User not found");
+
+                }
+                User userDetails = optionalUser.get();
+                // System.out.println("this is user details loaded "+userDetails);
+                // System.out.println(" User userDetails in profile creation"+userDetails);
+
+                int Userid = userDetails.getUserId();
+                UserSkill savedUserSkill = userSkillService.saveUserSkill(userDetails, userSkill);
+                return new ResponseEntity<>(savedUserSkill, HttpStatus.CREATED);
+            }
+        } catch (Exception e) {
+            System.out.println("try catch " + e);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return null;
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<UserSkill> getUserSkillById(@PathVariable Long id) {
-        UserSkill userSkill = userSkillService.getUserSkillById(id);
-        if (userSkill != null) {
-            return ResponseEntity.ok(userSkill);
-        } else {
-            return ResponseEntity.notFound().build();
+
+    @GetMapping("/me")
+    public ResponseEntity<List<UserSkillDTO>> getUserSkillByJwtToken(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response,
+                                                                     @NonNull FilterChain filterChain) {
+       try {
+            //System.out.println("in profile creation");
+            final String authHeader = request.getHeader("Authorization");
+            final String jwt;
+            final String userEmail;
+
+            if (authHeader == null ||!authHeader.startsWith("Bearer ")) {
+                filterChain.doFilter(request, response);
+                return null;
+            }
+            //System.out.println("after final variable assign");
+            jwt = authHeader.substring(7);
+            //System.out.println(jwt+" this is jwt");
+            userEmail = JwtService.extractUsername(jwt);
+            // System.out.println(userEmail+" this is user email");
+            if (userEmail != null ){
+
+                // System.out.println("in if user load by optional");
+                Optional<User> optionalUser = repository.findByEmail(userEmail);
+                System.out.println("optionalUser "+optionalUser);
+                if (!optionalUser.isPresent()) {
+                    throw new RuntimeException("User not found");
+
+                }User userDetails = optionalUser.get();
+
+                int Userid= userDetails.getUserId();
+                List<UserSkillDTO> userSkills = userSkillService.getUserSkillsByUserId(Userid);
+                if (userSkills == null) {
+                    return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+                }
+
+
+                return ResponseEntity.ok(userSkills);
+            }
+
+        } catch (Exception e) {
+            System.out.println("try catch "+e);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
+
+
+        return null;
+
+
+
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUserSkill(@PathVariable Long id) {
-        userSkillService.deleteUserSkill(id);
-        return ResponseEntity.noContent().build();
+        try {
+            userSkillService.deleteUserSkill(id);
+            return ResponseEntity.noContent().build();
+        } catch (Exception e) {
+            // Log the error or handle it accordingly
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<UserSkill> updateUserSkillById(@PathVariable Long id, @RequestBody UserSkill updatedUserSkill) {
-        UserSkill updatedSkill = userSkillService.updateUserSkillById(id, updatedUserSkill);
-        if (updatedSkill != null) {
-            return ResponseEntity.ok(updatedSkill);
-        } else {
-            return ResponseEntity.notFound().build();
+    public ResponseEntity<UserSkillDTO> updateUserSkill(@PathVariable("id") String id, @RequestBody UserSkillDTO updatedUserSkill) {
+        try {
+            Long skillId = Long.parseLong(id);
+            UserSkillDTO updatedSkill = userSkillService.updateUserSkill(skillId, updatedUserSkill);
+            if (updatedSkill != null) {
+                return ResponseEntity.ok(updatedSkill);
+            } else {
+                return ResponseEntity.notFound().build();
+            }
+        } catch (NumberFormatException e) {
+            // Handle invalid ID format
+            return ResponseEntity.badRequest().build();
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+
+
+
+
+
+
 }

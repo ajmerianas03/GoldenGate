@@ -1,21 +1,25 @@
 package com.GoldenGate.GoldenGate.system.service;
 
+import com.GoldenGate.GoldenGate.system.DTO.UserSkillDTO;
+import com.GoldenGate.GoldenGate.system.model.Profile;
 import com.GoldenGate.GoldenGate.system.model.UserSkill;
+import com.GoldenGate.GoldenGate.user.User;
 
 import java.util.List;
 
 public interface UserSkillService {
 
     // CRUD operations for user skills
-    UserSkill saveUserSkill(UserSkill userSkill);
 
-    UserSkill getUserSkillById(Long id);
+    public UserSkill saveUserSkill(User UserDetails, UserSkill userSkill);
+
 
     //List<UserSkill> getAllUserSkills();
 
     void deleteUserSkill(Long id);
 
-    UserSkill updateUserSkillById(Long id, UserSkill updatedUserSkill);
 
+    UserSkillDTO updateUserSkill(Long id, UserSkillDTO updatedUserSkill);
 
+    List<UserSkillDTO>  getUserSkillsByUserId(int userid);
 }

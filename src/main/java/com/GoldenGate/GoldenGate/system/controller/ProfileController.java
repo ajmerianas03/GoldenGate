@@ -20,7 +20,11 @@ import org.springframework.web.bind.annotation.*;
 import java.io.IOException;
 import java.util.Optional;
 
+//@CrossOrigin(origins = "* ", allowedHeaders = "*")
+//@CrossOrigin(origins = "* ", allowedHeaders = "*")
+@CrossOrigin("http://localhost:3000")
 @RestController
+
 @RequestMapping("/api/v1/profiles")
 public class ProfileController {
 
@@ -29,7 +33,7 @@ public class ProfileController {
     private final ProfileService profileService;
 
     private final ProfileRepository profileRepository;
-   // private final UserDetailsService userDetailsService;
+    // private final UserDetailsService userDetailsService;
 
     private final UserRepository repository;
 
@@ -121,18 +125,18 @@ public class ProfileController {
             jwt = authHeader.substring(7);
             //System.out.println(jwt+" this is jwt");
             userEmail = JwtService.extractUsername(jwt);
-           // System.out.println(userEmail+" this is user email");
+            // System.out.println(userEmail+" this is user email");
             if (userEmail != null ){
 
-               // System.out.println("in if user load by optional");
+                // System.out.println("in if user load by optional");
                 Optional<User> optionalUser = repository.findByEmail(userEmail);
                 System.out.println("optionalUser "+optionalUser);
                 if (!optionalUser.isPresent()) {
                     throw new RuntimeException("User not found");
 
                 }User userDetails = optionalUser.get();
-               // System.out.println("this is user details loaded "+userDetails);
-               // System.out.println(" User userDetails in profile creation"+userDetails);
+                // System.out.println("this is user details loaded "+userDetails);
+                // System.out.println(" User userDetails in profile creation"+userDetails);
 
                 int Userid= userDetails.getUserId();
                 Profile createdProfile = profileService.createNewProfile(userDetails, newProfile);

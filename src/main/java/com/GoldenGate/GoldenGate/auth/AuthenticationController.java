@@ -6,6 +6,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+@CrossOrigin("*")
+//@CrossOrigin(origins = "* ", allowedHeaders="*")
 @RestController
 @RequestMapping("/api/v1/auth")
 @RequiredArgsConstructor
