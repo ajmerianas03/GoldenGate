@@ -22,7 +22,7 @@ import java.util.Optional;
 
 //@CrossOrigin(origins = "* ", allowedHeaders = "*")
 //@CrossOrigin(origins = "* ", allowedHeaders = "*")
-@CrossOrigin("http://localhost:3000")
+@CrossOrigin("*")
 @RestController
 
 @RequestMapping("/api/v1/profiles")
@@ -80,11 +80,12 @@ public class ProfileController {
                 if (!optionalUser.isPresent()) {
                     throw new RuntimeException("User not found");
 
-                }User userDetails = optionalUser.get();
+                }
+                User userDetails = optionalUser.get();
                 // System.out.println("this is user details loaded "+userDetails);
                 // System.out.println(" User userDetails in profile creation"+userDetails);
 
-                int Userid= userDetails.getUserId();
+                int Userid= Math.toIntExact(userDetails.getUserId());
                 Profile profile = profileRepository.findByUser_UserId(Userid);
                 if (profile == null) {
                     return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -138,7 +139,7 @@ public class ProfileController {
                 // System.out.println("this is user details loaded "+userDetails);
                 // System.out.println(" User userDetails in profile creation"+userDetails);
 
-                int Userid= userDetails.getUserId();
+                int Userid= Math.toIntExact(userDetails.getUserId());
                 Profile createdProfile = profileService.createNewProfile(userDetails, newProfile);
 
                 return new ResponseEntity<>(createdProfile, HttpStatus.CREATED);

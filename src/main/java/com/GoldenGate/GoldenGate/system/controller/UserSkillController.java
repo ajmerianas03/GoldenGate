@@ -17,11 +17,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 @RestController
-@CrossOrigin("http://localhost:3000")
+@CrossOrigin("*")
 @RequestMapping("/api/v1/userskills")
 @RequiredArgsConstructor
 public class UserSkillController {
@@ -32,49 +33,94 @@ public class UserSkillController {
 
     private final JwtService JwtService;
 
+
+//    @PostMapping("")
+//    public ResponseEntity<UserSkill> saveUserSkill(@NonNull HttpServletRequest request,@NonNull HttpServletResponse response,
+//        @NonNull FilterChain filterChain,
+//        @RequestBody UserSkill userSkill) throws ServletException, IOException {
+//
+//        try {
+//            //System.out.println("in profile creation");
+//            final String authHeader = request.getHeader("Authorization");
+//            final String jwt;
+//            final String userEmail;
+//
+//            if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+//                filterChain.doFilter(request, response);
+//                return null;
+//            }
+//            //System.out.println("after final variable assign");
+//            jwt = authHeader.substring(7);
+//            //System.out.println(jwt+" this is jwt");
+//            userEmail = JwtService.extractUsername(jwt);
+//            // System.out.println(userEmail+" this is user email");
+//            if (userEmail != null) {
+//
+//                // System.out.println("in if user load by optional");
+//                Optional<User> optionalUser = repository.findByEmail(userEmail);
+//                System.out.println("optionalUser " + optionalUser);
+//                if (!optionalUser.isPresent()) {
+//                    throw new RuntimeException("User not found");
+//
+//                }
+//                User userDetails = optionalUser.get();
+//                // System.out.println("this is user details loaded "+userDetails);
+//                // System.out.println(" User userDetails in profile creation"+userDetails);
+//
+//                int Userid = userDetails.getUserId();
+//                UserSkill savedUserSkill = userSkillService.saveUserSkill(userDetails, userSkill);
+//                return new ResponseEntity<>(savedUserSkill, HttpStatus.CREATED);
+//            }
+//        } catch (Exception e) {
+//            System.out.println("try catch " + e);
+//            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+//        }
+//        return null;
+//    }
+
     @PostMapping("")
-    public ResponseEntity<UserSkill> saveUserSkill(@NonNull HttpServletRequest request,@NonNull HttpServletResponse response,
-        @NonNull FilterChain filterChain,
-        @RequestBody UserSkill userSkill) throws ServletException, IOException {
+    public ResponseEntity<List<UserSkill>> saveUserSkills(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response,
+                                                          @NonNull FilterChain filterChain, @RequestBody List<UserSkill> userSkills) throws ServletException, IOException {
 
         try {
-            //System.out.println("in profile creation");
+            // Extract JWT token from the request header
             final String authHeader = request.getHeader("Authorization");
             final String jwt;
             final String userEmail;
 
+            // Validate the JWT token
             if (authHeader == null || !authHeader.startsWith("Bearer ")) {
                 filterChain.doFilter(request, response);
                 return null;
             }
-            //System.out.println("after final variable assign");
             jwt = authHeader.substring(7);
-            //System.out.println(jwt+" this is jwt");
             userEmail = JwtService.extractUsername(jwt);
-            // System.out.println(userEmail+" this is user email");
             if (userEmail != null) {
-
-                // System.out.println("in if user load by optional");
+                // Fetch the user details from the repository using the email
                 Optional<User> optionalUser = repository.findByEmail(userEmail);
-                System.out.println("optionalUser " + optionalUser);
                 if (!optionalUser.isPresent()) {
                     throw new RuntimeException("User not found");
-
                 }
                 User userDetails = optionalUser.get();
-                // System.out.println("this is user details loaded "+userDetails);
-                // System.out.println(" User userDetails in profile creation"+userDetails);
-
-                int Userid = userDetails.getUserId();
-                UserSkill savedUserSkill = userSkillService.saveUserSkill(userDetails, userSkill);
-                return new ResponseEntity<>(savedUserSkill, HttpStatus.CREATED);
+                // Initialize a list to store the saved user skills
+                List<UserSkill> savedUserSkills = new ArrayList<>();
+                // Iterate over the list of user skills and save each one
+                for (UserSkill userSkill : userSkills) {
+                    savedUserSkills.add(userSkillService.saveUserSkill(userDetails, userSkill));
+                }
+                // Return the list of saved user skills in the response
+                return new ResponseEntity<>(savedUserSkills, HttpStatus.CREATED);
             }
         } catch (Exception e) {
+            // Handle any exceptions and return an internal server error response
             System.out.println("try catch " + e);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return null;
     }
+
+
+
 
 
     @GetMapping("/me")

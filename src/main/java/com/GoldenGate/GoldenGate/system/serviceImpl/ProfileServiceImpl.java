@@ -1,7 +1,6 @@
 package com.GoldenGate.GoldenGate.system.serviceImpl;
 
 import com.GoldenGate.GoldenGate.system.exceptions.InvalidTokenException;
-import com.GoldenGate.GoldenGate.system.exceptions.ProfileNotFoundException;
 import com.GoldenGate.GoldenGate.system.model.Profile;
 import com.GoldenGate.GoldenGate.system.repository.ProfileRepository;
 import com.GoldenGate.GoldenGate.config.JwtService;

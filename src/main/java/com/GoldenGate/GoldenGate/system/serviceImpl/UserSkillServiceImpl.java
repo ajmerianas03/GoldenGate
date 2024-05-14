@@ -30,10 +30,10 @@ public class UserSkillServiceImpl implements UserSkillService {
         this.jwtService = jwtService;
     }
 
-//    @Override
-//    public UserSkill saveUserSkill(UserSkill userSkill) {
-//        return userSkillRepository.save(userSkill);
-//    }
+    @Override
+    public UserSkill saveUserSkill(UserSkill userSkill) {
+        return userSkillRepository.save(userSkill);
+    }
 
     @Override
     public UserSkill saveUserSkill(User UserDetails, UserSkill userSkill) {
@@ -41,6 +41,17 @@ public class UserSkillServiceImpl implements UserSkillService {
         userSkill.setUser(UserDetails);
         return userSkillRepository.save(userSkill);
     }
+
+//    @Override
+//    public List<UserSkill> saveUserSkills(User userDetails, List<UserSkill> userSkills) {
+//        List<UserSkill> savedUserSkills = new ArrayList<>();
+//        for (UserSkill userSkill : userSkills) {
+//            userSkill.setUser(userDetails);
+//            savedUserSkills.add(userSkillRepository.save(userSkill));
+//        }
+//        return savedUserSkills;
+//    }
+
 
 
     @Override

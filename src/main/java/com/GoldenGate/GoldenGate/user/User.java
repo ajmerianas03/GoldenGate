@@ -1,6 +1,5 @@
 package com.GoldenGate.GoldenGate.user;
 
-import com.GoldenGate.GoldenGate.user.Role;
 import jakarta.persistence.*;
 
 import java.util.Collection;

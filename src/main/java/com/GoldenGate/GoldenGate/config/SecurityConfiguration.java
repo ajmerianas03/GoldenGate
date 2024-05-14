@@ -26,7 +26,7 @@ public class SecurityConfiguration {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000"));
+        configuration.setAllowedOrigins(Arrays.asList("*"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE","Access-Control-Allow-Methods")); // Include other allowed methods as needed
         configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type"));
         configuration.addExposedHeader("Access-Control-Allow-Methods"); // Expose the Access-Control-Allow-Methods header

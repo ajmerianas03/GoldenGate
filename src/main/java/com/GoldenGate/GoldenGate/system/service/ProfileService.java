@@ -4,8 +4,7 @@ import com.GoldenGate.GoldenGate.system.model.Profile;
 import com.GoldenGate.GoldenGate.user.User;
 
 public interface ProfileService {
-
     Profile getProfileByJwtToken(String jwtToken);
-    public Profile createNewProfile(User UserDetails, Profile newProfile);
 
+    Profile createNewProfile(User UserDetails, Profile newProfile);
 }
