@@ -21,12 +21,7 @@ public class ExperienceServiceImpl implements ExperienceService {
 
     @Override
     public Experience saveExperience(User userDetails, Experience experience) {
-        int userId = userDetails.getUserId();
-        // Check if an experience already exists for the user
-        Experience existingExperience = experienceRepository.findByUser_UserId(userId);
-        if (existingExperience != null) {
-            throw new RuntimeException("Experience already exists for user with ID: " + userId);
-        }
+
         // Set the user to the new experience and save it
         experience.setUser(userDetails);
         return experienceRepository.save(experience);
@@ -60,7 +55,7 @@ public class ExperienceServiceImpl implements ExperienceService {
     }
 
     @Override
-    public List<Experience> getAllExperiences() {
+    public List<Experience> getAllExperiences(int userid) {
         return experienceRepository.findAll();
     }
 }

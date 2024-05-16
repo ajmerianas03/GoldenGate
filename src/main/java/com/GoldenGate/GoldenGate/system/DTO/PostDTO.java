@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @Getter
@@ -17,8 +18,9 @@ public class PostDTO {
     private String content;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-    private Long userId;
+
     private int commentsCount;
     private int likesCount;
+    private List<String> images;
 
 }

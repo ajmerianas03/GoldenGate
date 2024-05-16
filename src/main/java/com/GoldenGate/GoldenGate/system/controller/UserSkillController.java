@@ -34,49 +34,6 @@ public class UserSkillController {
     private final JwtService JwtService;
 
 
-//    @PostMapping("")
-//    public ResponseEntity<UserSkill> saveUserSkill(@NonNull HttpServletRequest request,@NonNull HttpServletResponse response,
-//        @NonNull FilterChain filterChain,
-//        @RequestBody UserSkill userSkill) throws ServletException, IOException {
-//
-//        try {
-//            //System.out.println("in profile creation");
-//            final String authHeader = request.getHeader("Authorization");
-//            final String jwt;
-//            final String userEmail;
-//
-//            if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-//                filterChain.doFilter(request, response);
-//                return null;
-//            }
-//            //System.out.println("after final variable assign");
-//            jwt = authHeader.substring(7);
-//            //System.out.println(jwt+" this is jwt");
-//            userEmail = JwtService.extractUsername(jwt);
-//            // System.out.println(userEmail+" this is user email");
-//            if (userEmail != null) {
-//
-//                // System.out.println("in if user load by optional");
-//                Optional<User> optionalUser = repository.findByEmail(userEmail);
-//                System.out.println("optionalUser " + optionalUser);
-//                if (!optionalUser.isPresent()) {
-//                    throw new RuntimeException("User not found");
-//
-//                }
-//                User userDetails = optionalUser.get();
-//                // System.out.println("this is user details loaded "+userDetails);
-//                // System.out.println(" User userDetails in profile creation"+userDetails);
-//
-//                int Userid = userDetails.getUserId();
-//                UserSkill savedUserSkill = userSkillService.saveUserSkill(userDetails, userSkill);
-//                return new ResponseEntity<>(savedUserSkill, HttpStatus.CREATED);
-//            }
-//        } catch (Exception e) {
-//            System.out.println("try catch " + e);
-//            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-//        }
-//        return null;
-//    }
 
     @PostMapping("")
     public ResponseEntity<List<UserSkill>> saveUserSkills(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response,
@@ -150,8 +107,8 @@ public class UserSkillController {
                     throw new RuntimeException("User not found");
 
                 }User userDetails = optionalUser.get();
-
-                int Userid= userDetails.getUserId();
+                Integer Userid = Math.toIntExact(((User) userDetails).getUserId());
+                //int Userid= userDetails.getUserId();
                 List<UserSkillDTO> userSkills = userSkillService.getUserSkillsByUserId(Userid);
                 if (userSkills == null) {
                     return new ResponseEntity<>(HttpStatus.NOT_FOUND);

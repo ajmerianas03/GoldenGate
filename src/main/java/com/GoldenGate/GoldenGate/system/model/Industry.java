@@ -10,6 +10,8 @@ import lombok.*;
 @AllArgsConstructor
 @Getter
 @Setter
+@Builder
+
 public class Industry {
 
     @Id

@@ -47,7 +47,7 @@ public class ProfileServiceImpl implements ProfileService {
         }
 
         // Get the userId from the loaded User
-        Integer userId = ((User) userDetails).getUserId();
+        Integer userId = Math.toIntExact(((User) userDetails).getUserId());
 
         // Find the Profile by userId
         return profileRepository.findByUser_UserId(userId);
@@ -85,7 +85,7 @@ public class ProfileServiceImpl implements ProfileService {
         newProfile.setUser(user);
 
         */
-        int Userid = UserDetails.getUserId();
+        int Userid = Math.toIntExact(UserDetails.getUserId());
        // System.out.println(" User id in serviceimpl of profile"+Userid);
         Profile existingProfile = profileRepository.findByUser_UserId(Userid);
         if (existingProfile != null) {

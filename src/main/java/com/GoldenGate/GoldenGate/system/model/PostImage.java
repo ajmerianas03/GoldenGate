@@ -12,6 +12,8 @@ import lombok.*;
 @Getter
 @Setter
 @Data
+@Builder
+
 @Table(name = "post_images")
 public class PostImage {
 

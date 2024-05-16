@@ -14,5 +14,5 @@ public interface ExperienceService {
 
     Experience getExperienceById(Integer id);
 
-    List<Experience> getAllExperiences();
+    List<Experience> getAllExperiences(int userid);
 }

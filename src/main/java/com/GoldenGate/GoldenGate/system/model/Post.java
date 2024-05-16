@@ -10,6 +10,8 @@ import java.sql.Timestamp;
 @Entity
 @Table(name = "posts")
 @Data
+@Builder
+
 @NoArgsConstructor
 @AllArgsConstructor
 public class Post {

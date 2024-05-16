@@ -16,6 +16,8 @@ import java.util.Date;
 @AllArgsConstructor
 @Getter
 @Setter
+@Builder
+
 public class Experience {
 
     @Id

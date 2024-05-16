@@ -12,6 +12,8 @@ import lombok.*;
 @Getter
 @Setter
 @Entity
+@Builder
+
 @Table(name = "user_skill")
 public class UserSkill {
 
