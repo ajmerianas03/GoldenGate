@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@CrossOrigin("*")
+@CrossOrigin("/*")
 @RequestMapping("/api/v1/userskills")
 @RequiredArgsConstructor
 public class UserSkillController {

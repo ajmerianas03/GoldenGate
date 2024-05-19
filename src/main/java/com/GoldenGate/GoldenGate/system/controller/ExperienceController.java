@@ -4,15 +4,12 @@ package com.GoldenGate.GoldenGate.system.controller;
 import com.GoldenGate.GoldenGate.repository.UserRepository;
 import com.GoldenGate.GoldenGate.config.JwtService;
 import com.GoldenGate.GoldenGate.system.model.Experience;
-import com.GoldenGate.GoldenGate.system.model.Profile;
 import com.GoldenGate.GoldenGate.system.service.ExperienceService;
 import com.GoldenGate.GoldenGate.user.User;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -25,15 +22,25 @@ import java.util.Optional;
 
 @CrossOrigin("*")
 @RestController
-@AllArgsConstructor
+
 @RequestMapping("/api/v1/experiences")
 public class ExperienceController {
 
+
     private final JwtService JwtService;
+
+
     private final ExperienceService experienceService;
 
     private final UserRepository repository;
 
+    @Autowired
+
+    public ExperienceController(JwtService jwtService, ExperienceService experienceService, UserRepository repository) {
+        JwtService = jwtService;
+        this.experienceService = experienceService;
+        this.repository = repository;
+    }
 
 
     @GetMapping("/{id}")

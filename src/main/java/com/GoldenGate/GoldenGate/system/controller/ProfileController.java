@@ -22,7 +22,7 @@ import java.util.Optional;
 
 //@CrossOrigin(origins = "* ", allowedHeaders = "*")
 //@CrossOrigin(origins = "* ", allowedHeaders = "*")
-@CrossOrigin("*")
+@CrossOrigin("/*")
 @RestController
 
 @RequestMapping("/api/v1/profiles")
