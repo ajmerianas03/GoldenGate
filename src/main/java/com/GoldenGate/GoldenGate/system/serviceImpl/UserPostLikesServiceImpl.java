@@ -42,4 +42,15 @@ public class UserPostLikesServiceImpl implements UserPostLikesService {
         }
         return userPostLike;
     }
+
+    @Override
+    public boolean getLikePostByUser(User user, Post post) {
+
+        UserPostLikes userPostLike = userPostLikeRepository.findByUserAndPost(user, post);
+        if (userPostLike != null) {
+
+            return true;
+        }
+        return false;
+    }
 }

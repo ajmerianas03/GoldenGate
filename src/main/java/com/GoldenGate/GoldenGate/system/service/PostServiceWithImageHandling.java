@@ -14,10 +14,12 @@ public interface PostServiceWithImageHandling {
    public   String savePostWithImages(User userDetails , PostDTO postDTO);
 
     //usefull
-     List<PostDTO> getPostsByUserIdWithImages(Long userId);
+     //List<PostDTO> getPostsByUserIdWithImages(Long userId);
 
     //usefull
 // List<PostDTO> getPostsByUserIdWithoutImages(Long userId);
+
+    List<PostDTO> getPostsByUserIdWithImages(Long userId, int page, int size);
 
     //usefull
    void deletePost(Long postId);

@@ -12,11 +12,17 @@ import com.GoldenGate.GoldenGate.system.repository.PostRepository;
 import com.GoldenGate.GoldenGate.system.service.PostServiceWithImageHandling;
 import com.GoldenGate.GoldenGate.system.service.UserPostLikesService;
 import com.GoldenGate.GoldenGate.user.User;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -31,6 +37,8 @@ public class PostServiceWithImageHandlingImpl  implements PostServiceWithImageHa
     private final UserPostLikesService userPostLikesService;
 
     private final CommentRepository commentRepository;
+
+    private ModelMapper modelMapper;
 
     @Autowired
     public PostServiceWithImageHandlingImpl(PostRepository postRepository, PostImageRepository postImageRepository, UserPostLikesService userPostLikesService, CommentRepository commentRepository) {
@@ -74,16 +82,44 @@ public class PostServiceWithImageHandlingImpl  implements PostServiceWithImageHa
         return "Post  saved successfully.";
     }
 
-    @Override
-    public List<PostDTO> getPostsByUserIdWithImages(Long userId) {
-        // Retrieve posts by user ID
-        List<Post> posts = postRepository. findByUser_UserId(userId);
+//    @Override
+//    public List<PostDTO> getPostsByUserIdWithImages(Long userId) {
+//        // Retrieve posts by user ID
+//        List<Post> posts = postRepository. findByUser_UserId(userId);
+//
+//        // Map Post entities to PostDTOs with images
+//        return posts.stream()
+//                .map(this::convertToDTOWithImages)
+//                .collect(Collectors.toList());
+//    }
 
-        // Map Post entities to PostDTOs with images
-        return posts.stream()
-                .map(this::convertToDTOWithImages)
-                .collect(Collectors.toList());
+    @Override
+    public List<PostDTO> getPostsByUserIdWithImages(Long userId, int page, int size) {
+        try {
+            // Create a pageable request with the given page number and size
+            Pageable pageable = PageRequest.of(page, size);
+
+            // Retrieve posts by user ID with pagination
+            Page<Post> postPage = postRepository.findByUser_UserId(userId, pageable);
+
+            if (postPage.isEmpty()) {
+                return Collections.emptyList(); // Return an empty list if no posts are found
+            }
+
+
+            // Map Post entities to PostDTOs with images
+            return postPage.getContent().stream()
+                    .map(this::convertToDTOWithImages)
+                    .collect(Collectors.toList());
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
+
+            throw new RuntimeException("Error retrieving posts", e);
+        }
     }
+
 
     @Override
     public void deletePost(Long postId) {
@@ -203,6 +239,7 @@ public class PostServiceWithImageHandlingImpl  implements PostServiceWithImageHa
     }
 
     private PostDTO convertToDTOWithImages(Post post) {
+        User user=post.getUser();
         PostDTO postDTO = new PostDTO();
         postDTO.setPostId(post.getPostId());
         postDTO.setContent(post.getContent());
@@ -210,6 +247,7 @@ public class PostServiceWithImageHandlingImpl  implements PostServiceWithImageHa
         postDTO.setUpdatedAt(post.getUpdatedAt().toLocalDateTime());
         postDTO.setCommentsCount(post.getCommentsCount());
         postDTO.setLikesCount(post.getLikesCount());
+        postDTO.setPost_Like_Status(userPostLikesService.getLikePostByUser(user,post));
 
         // Fetch associated images
         List<PostImage> postImages = postImageRepository.findByPost(post);

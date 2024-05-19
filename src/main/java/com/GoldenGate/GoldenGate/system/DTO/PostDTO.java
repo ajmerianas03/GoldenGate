@@ -22,5 +22,6 @@ public class PostDTO {
     private int commentsCount;
     private int likesCount;
     private List<String> images;
+    boolean post_Like_Status;
 
 }

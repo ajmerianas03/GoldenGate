@@ -11,5 +11,7 @@ public interface UserPostLikesService {
 
     UserPostLikes unlikePost(User user, Post post);
 
+    boolean getLikePostByUser(User user, Post post);
+
     //void unlikePost(User user, Post post);
 }
