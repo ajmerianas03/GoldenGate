@@ -7,4 +7,7 @@ public interface ProfileService {
     Profile getProfileByJwtToken(String jwtToken);
 
     Profile createNewProfile(User UserDetails, Profile newProfile);
+
+
+    Profile updateProfile(Integer profileId, Profile updatedProfile);
 }

@@ -104,62 +104,6 @@ public class PostRequestController {
 
     }
 
-//    @GetMapping("/me")
-//    public ResponseEntity<List<PostDTO>> getPostsByUserId(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response,
-//                                                          @NonNull FilterChain filterChain) {
-//
-//
-//        try {
-//            //System.out.println("in profile creation");
-//            final String authHeader = request.getHeader("Authorization");
-//            final String jwt;
-//            final String userEmail;
-//
-//            if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-//                filterChain.doFilter(request, response);
-//                return null;
-//            }
-//            //System.out.println("after final variable assign");
-//            jwt = authHeader.substring(7);
-//            //System.out.println(jwt+" this is jwt");
-//            userEmail = jwtService.extractUsername(jwt);
-//            // System.out.println(userEmail+" this is user email");
-//            if (userEmail != null) {
-//
-//                // System.out.println("in if user load by optional");
-//                Optional<User> optionalUser = repository.findByEmail(userEmail);
-//                System.out.println("optionalUser " + optionalUser);
-//                if (!optionalUser.isPresent()) {
-//                    throw new RuntimeException("User not found");
-//
-//                }
-//                User userDetails = optionalUser.get();
-//                // System.out.println("this is user details loaded "+userDetails);
-//                // System.out.println(" User userDetails in profile creation"+userDetails);
-//
-//                int Userid = Math.toIntExact(userDetails.getUserId());
-//                // Profile profile = profileRepository.findByUser_UserId(Userid);
-//                List<PostDTO> postDTO = postServiceWithImageHandling.getPostsByUserIdWithImages((long) Userid);
-//
-//                if (postDTO == null) {
-//                    return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-//                }
-//
-//
-//                return ResponseEntity.ok(postDTO);
-//            }
-//
-//        } catch (Exception e) {
-//            System.out.println("try catch " + e);
-//            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-//        }
-//
-//
-//        return null;
-//
-//
-//    }
-
     @GetMapping("/me")
     public ResponseEntity<List<PostDTO>> getPostsByUserId(
             HttpServletRequest request,

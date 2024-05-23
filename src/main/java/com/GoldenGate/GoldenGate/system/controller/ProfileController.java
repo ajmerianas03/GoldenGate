@@ -12,6 +12,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -154,5 +157,37 @@ public class ProfileController {
 
     }
 
+    @GetMapping("")
+    public ResponseEntity<Page<Profile>> getAllProfiles(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        try {
+            Pageable pageable = PageRequest.of(page, size);
+            Page<Profile> profilesPage = (Page<Profile>) profileRepository.findAll(pageable);
+
+            if (profilesPage.isEmpty()) {
+                return ResponseEntity.noContent().build();
+            }
+
+            return ResponseEntity.ok(profilesPage);
+        } catch (Exception e) {
+            System.out.println("Exception while fetching profiles: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @PutMapping("/{profileId}")
+    public ResponseEntity<Profile> updateProfile(
+            @PathVariable Integer profileId,
+            @RequestBody Profile updatedProfile) {
+        try {
+            // Update profile using the service
+            Profile updated = profileService.updateProfile(profileId, updatedProfile);
+
+            return ResponseEntity.ok(updated);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 
 }

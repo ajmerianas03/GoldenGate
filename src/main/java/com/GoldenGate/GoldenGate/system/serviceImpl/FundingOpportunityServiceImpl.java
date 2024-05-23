@@ -6,7 +6,11 @@ import com.GoldenGate.GoldenGate.system.repository.FundingOpportunityRepository;
 import com.GoldenGate.GoldenGate.system.service.FundingOpportunityService;
 import com.GoldenGate.GoldenGate.user.User;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
+
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import java.sql.Timestamp;
 import java.util.List;
@@ -55,21 +59,42 @@ public class FundingOpportunityServiceImpl implements FundingOpportunityService 
     }
 
     @Override
-    public List<FundingOpportunityDTO> getAllFundingOpportunities() {
-        List<FundingOpportunity> fundingOpportunities = fundingOpportunityRepository.findAll();
-        return fundingOpportunities.stream().map(this::convertToDTO).collect(Collectors.toList());
+    public Page<FundingOpportunityDTO> getAllFundingOpportunities(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<FundingOpportunity> fundingOpportunityPage = fundingOpportunityRepository.findAll(pageable);
+        return fundingOpportunityPage.map(this::convertToFundingOpportunityDTO);
     }
 
-    @Override
-    public FundingOpportunityDTO getFundingOpportunityById(int opportunityId) {
-        Optional<FundingOpportunity> optionalFundingOpportunity = fundingOpportunityRepository.findById(opportunityId);
-        return optionalFundingOpportunity.map(this::convertToDTO).orElse(null);
-    }
+
 
     private FundingOpportunityDTO convertToDTO(FundingOpportunity fundingOpportunity) {
         FundingOpportunityDTO dto = new FundingOpportunityDTO();
         dto.setOpportunityId(fundingOpportunity.getOpportunityId());
         // Set other fields from entity to DTO
+        return dto;
+    }
+
+    @Override
+    public Page<FundingOpportunityDTO> getFundingOpportunitiesByUserId(Integer userId, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<FundingOpportunity> fundingOpportunityPage = fundingOpportunityRepository.findByUser_UserId(userId, pageable);
+        return fundingOpportunityPage.map(this::convertToFundingOpportunityDTO);
+    }
+
+    private FundingOpportunityDTO convertToFundingOpportunityDTO(FundingOpportunity fundingOpportunity) {
+        FundingOpportunityDTO dto = new FundingOpportunityDTO();
+        dto.setOpportunityId(fundingOpportunity.getOpportunityId());
+        dto.setContactEmail(fundingOpportunity.getContactEmail());
+        dto.setFundingAmount(fundingOpportunity.getFundingAmount());
+        dto.setTargetMarket(fundingOpportunity.getTargetMarket());
+        dto.setBusinessModel(fundingOpportunity.getBusinessModel());
+        dto.setBusinessStage(fundingOpportunity.getBusinessStage());
+        dto.setFundingRound(fundingOpportunity.getFundingRound());
+        dto.setProposal(fundingOpportunity.getProposal());
+        dto.setPitchDeckPdf(fundingOpportunity.getPitchDeckPdf());
+        dto.setBusinessPlanPdf(fundingOpportunity.getBusinessPlanPdf());
+        dto.setFinancialStatementsPdf(fundingOpportunity.getFinancialStatementsPdf());
+        dto.setLikeCount(fundingOpportunity.getLikeCount());
         return dto;
     }
 }

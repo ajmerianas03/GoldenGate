@@ -11,6 +11,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 public class ProfileServiceImpl implements ProfileService {
 
@@ -37,11 +39,6 @@ public class ProfileServiceImpl implements ProfileService {
             throw new InvalidTokenException("Invalid JWT token");
         }
 
-        // Extract the username (email) from the JWT token
-       // String userEmail = jwtService.extractUsername(jwtToken);
-
-        // Load the UserDetails (User) using the email
-        //UserDetails userDetails = userDetailsService.loadUserByUsername(userEmail);
         if (userDetails == null) {
             throw new RuntimeException("User details not found for email: " + userEmail);
         }
@@ -60,31 +57,6 @@ public class ProfileServiceImpl implements ProfileService {
 
 
 
-        //System.out.println("Serviceimpl");
-       /* String userEmail = jwtService.extractUsername(jwtToken);
-        System.out.println("After user email");
-        System.out.println("email"+userEmail);
-        UserDetails userDetails = userDetailsService.loadUserByUsername(userEmail);
-        System.out.println("User dtails"+userDetails);
-        if (!jwtService.isTokenValid(jwtToken, userDetails)) {
-            throw new InvalidTokenException("Invalid JWT token");
-        }
-
-
-        User user = ((User) userDetails);
-        System.out.println("user data"+user);
-
-
-        Profile existingProfile = profileRepository.findByUser_UserId(user.getUserId());
-
-        if (existingProfile != null) {
-            throw new RuntimeException("Profile already exists for user: " + userEmail);
-        }
-
-        // Set the user to the new profile and save it
-        newProfile.setUser(user);
-
-        */
         int Userid = Math.toIntExact(UserDetails.getUserId());
        // System.out.println(" User id in serviceimpl of profile"+Userid);
         Profile existingProfile = profileRepository.findByUser_UserId(Userid);
@@ -97,5 +69,25 @@ public class ProfileServiceImpl implements ProfileService {
         return profileRepository.save(newProfile);
     }
 
+
+    @Override
+    public Profile updateProfile(Integer profileId, Profile updatedProfile) {
+        Optional<Profile> optionalProfile = profileRepository.findById(profileId);
+        if (optionalProfile.isPresent()) {
+            Profile existingProfile = optionalProfile.get();
+            // Update existing profile with new data
+            existingProfile.setAvatar(updatedProfile.getAvatar());
+            existingProfile.setBio(updatedProfile.getBio());
+            existingProfile.setFullName(updatedProfile.getFullName());
+            existingProfile.setOtherDetails(updatedProfile.getOtherDetails());
+            existingProfile.setBackgroundImage(updatedProfile.getBackgroundImage());
+            existingProfile.setProfileType(updatedProfile.getProfileType());
+            // Save the updated profile
+            return profileRepository.save(existingProfile);
+        } else {
+            // If profile not found, return null or throw an exception
+            return null;
+        }
+    }
 
 }
