@@ -5,6 +5,7 @@ import com.GoldenGate.GoldenGate.system.DTO.PostDTO;
 import com.GoldenGate.GoldenGate.system.model.Comment;
 import com.GoldenGate.GoldenGate.system.model.Post;
 import com.GoldenGate.GoldenGate.user.User;
+import org.springframework.data.domain.Page;
 
 import java.util.List;
 
@@ -40,6 +41,10 @@ public interface PostServiceWithImageHandling {
     Comment unComment(User user, Post post);
 
     Integer removeComment(Long postId, CommentDTO commentDTO, User userDetails);
+
+    Page<CommentDTO> getCommentsByPostId(Long postId, int page, int size);
+
+   // List<PostDTO> fetchNextPosts(int count);
 
 //    List<PostDTO> getRecentPosts(int count);
 

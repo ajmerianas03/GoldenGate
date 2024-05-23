@@ -19,5 +19,8 @@ public class CommentDTO {
     private Timestamp updatedAt;
     private Long parentCommentId;
     private Long postId;
-    private Long userId;
+    private Integer userId;
+    private String avatar;
+    private String fullName;
+    private Integer profileId;
 }

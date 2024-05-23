@@ -10,6 +10,8 @@ import com.GoldenGate.GoldenGate.system.repository.PostRepository;
 import com.GoldenGate.GoldenGate.system.service.PostServiceWithImageHandling;
 import com.GoldenGate.GoldenGate.user.User;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -470,7 +472,7 @@ public class PostRequestController {
 
                 Long postId = commentDTO.getPostId();
 
-                Integer likeCount=postServiceWithImageHandling.removeComment(postId,commentDTO ,userDetails);
+                Integer likeCount=postServiceWithImageHandling. removeComment(postId,commentDTO ,userDetails);
 
                 // add missing logic
                 return likeCount;
@@ -487,8 +489,18 @@ public class PostRequestController {
 
     }
 
-
-
+    @GetMapping("/{postId}/comments")
+    public ResponseEntity<Page<CommentDTO>> getCommentsByPostId(
+            @PathVariable Long postId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        try {
+            Page<CommentDTO> commentsPage = postServiceWithImageHandling.getCommentsByPostId(postId, page, size);
+            return ResponseEntity.ok(commentsPage);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
+    }
 }
 
 

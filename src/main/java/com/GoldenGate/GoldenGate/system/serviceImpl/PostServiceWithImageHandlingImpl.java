@@ -2,20 +2,21 @@ package com.GoldenGate.GoldenGate.system.serviceImpl;
 
 import com.GoldenGate.GoldenGate.system.DTO.CommentDTO;
 import com.GoldenGate.GoldenGate.system.DTO.PostDTO;
-import com.GoldenGate.GoldenGate.system.model.Comment;
-import com.GoldenGate.GoldenGate.system.model.Post;
-import com.GoldenGate.GoldenGate.system.model.PostImage;
-import com.GoldenGate.GoldenGate.system.model.UserPostLikes;
+import com.GoldenGate.GoldenGate.system.model.*;
 import com.GoldenGate.GoldenGate.system.repository.CommentRepository;
 import com.GoldenGate.GoldenGate.system.repository.PostImageRepository;
 import com.GoldenGate.GoldenGate.system.repository.PostRepository;
+import com.GoldenGate.GoldenGate.system.repository.ProfileRepository;
 import com.GoldenGate.GoldenGate.system.service.PostServiceWithImageHandling;
 import com.GoldenGate.GoldenGate.system.service.UserPostLikesService;
 import com.GoldenGate.GoldenGate.user.User;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -38,14 +39,19 @@ public class PostServiceWithImageHandlingImpl  implements PostServiceWithImageHa
 
     private final CommentRepository commentRepository;
 
+    private final ProfileRepository profileRepository;
+
+    //private Long lastFetchedPostId = Long.MIN_VALUE;
+
     private ModelMapper modelMapper;
 
     @Autowired
-    public PostServiceWithImageHandlingImpl(PostRepository postRepository, PostImageRepository postImageRepository, UserPostLikesService userPostLikesService, CommentRepository commentRepository) {
+    public PostServiceWithImageHandlingImpl(PostRepository postRepository, PostImageRepository postImageRepository, UserPostLikesService userPostLikesService, CommentRepository commentRepository, ProfileRepository profileRepository) {
         this.postRepository = postRepository;
         this.postImageRepository = postImageRepository;
         this.userPostLikesService = userPostLikesService;
         this.commentRepository = commentRepository;
+        this.profileRepository = profileRepository;
     }
 
     public String savePostWithImages(User userDetails, PostDTO postDTO) {
@@ -238,6 +244,46 @@ public class PostServiceWithImageHandlingImpl  implements PostServiceWithImageHa
         return null;
     }
 
+
+    @Override
+    public Page<CommentDTO> getCommentsByPostId(Long postId, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Comment> commentPage = commentRepository.findByPostPostId(postId, pageable);
+        List<CommentDTO> commentDTOs = commentPage.getContent().stream()
+                .map(this::convertToCommentDTO)
+                .collect(Collectors.toList());
+        return new PageImpl<>(commentDTOs, pageable, commentPage.getTotalElements());
+    }
+
+    private CommentDTO convertToCommentDTO(Comment comment) {
+        User user = comment.getUser();
+        Optional<Profile> profileOpt = Optional.ofNullable(profileRepository.findByUser_UserId(user.getUserId()));
+
+        String avatar = null;
+        String fullName = null;
+        Integer profileId = null;
+
+        if (profileOpt.isPresent()) {
+            Profile profile = profileOpt.get();
+            avatar = profile.getAvatar();
+            fullName = profile.getFullName();
+            profileId = profile.getProfileId();
+        }
+
+        return CommentDTO.builder()
+                .commentId(comment.getCommentId())
+                .content(comment.getContent())
+                .createdAt(comment.getCreatedAt())
+                .updatedAt(comment.getUpdatedAt())
+                .parentCommentId(comment.getParentCommentId() != null ? comment.getParentCommentId() : null)
+                .postId(comment.getPost().getPostId())
+                .userId(user.getUserId())
+                .avatar(avatar)
+                .fullName(fullName)
+                .profileId(profileId)
+                .build();
+    }
+
     private PostDTO convertToDTOWithImages(Post post) {
         User user=post.getUser();
         PostDTO postDTO = new PostDTO();
@@ -258,6 +304,7 @@ public class PostServiceWithImageHandlingImpl  implements PostServiceWithImageHa
 
         return postDTO;
     }
+
 
 
 
