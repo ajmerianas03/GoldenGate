@@ -33,7 +33,7 @@ public class Profile {
     @Column(columnDefinition = "TEXT")
     private String otherDetails;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id")
     private User user;
 
@@ -41,7 +41,7 @@ public class Profile {
     private String backgroundImage;
 
     @Enumerated(EnumType.STRING)
-    @Column(columnDefinition = "ENUM('Investor', 'Advisor', 'Startup', 'Company', 'User', 'Institute', 'Super Admin', 'Moderator', 'Support Admin')")
+    @Column(columnDefinition = "ENUM('Investor', 'Advisor', 'Startup', 'Company', 'User', 'Institute', 'Admin', 'Moderator', 'Support Admin')")
     private ProfileType profileType;
 
 

@@ -17,10 +17,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -28,22 +26,14 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-public class PostServiceWithImageHandlingImpl  implements PostServiceWithImageHandling {
-
+public class PostServiceWithImageHandlingImpl implements PostServiceWithImageHandling {
 
     private final PostRepository postRepository;
-
     private final PostImageRepository postImageRepository;
-
     private final UserPostLikesService userPostLikesService;
-
     private final CommentRepository commentRepository;
-
     private final ProfileRepository profileRepository;
-
-    //private Long lastFetchedPostId = Long.MIN_VALUE;
-
-    private ModelMapper modelMapper;
+    private final ModelMapper modelMapper;
 
     @Autowired
     public PostServiceWithImageHandlingImpl(PostRepository postRepository, PostImageRepository postImageRepository, UserPostLikesService userPostLikesService, CommentRepository commentRepository, ProfileRepository profileRepository) {
@@ -52,12 +42,10 @@ public class PostServiceWithImageHandlingImpl  implements PostServiceWithImageHa
         this.userPostLikesService = userPostLikesService;
         this.commentRepository = commentRepository;
         this.profileRepository = profileRepository;
+        this.modelMapper = new ModelMapper();
     }
 
     public String savePostWithImages(User userDetails, PostDTO postDTO) {
-
-        System.out.println("in ser impl");
-
         Post post = new Post();
         post.setContent(postDTO.getContent());
         post.setCreatedAt(Timestamp.valueOf(LocalDateTime.now()));
@@ -68,9 +56,6 @@ public class PostServiceWithImageHandlingImpl  implements PostServiceWithImageHa
 
         Post savedPost = postRepository.save(post);
 
-        System.out.println("save post after  " + savedPost);
-
-
         if (postDTO.getImages() != null && !postDTO.getImages().isEmpty()) {
             for (String imageData : postDTO.getImages()) {
                 PostImage postImage = new PostImage();
@@ -78,63 +63,35 @@ public class PostServiceWithImageHandlingImpl  implements PostServiceWithImageHa
                 postImage.setPost(savedPost);
                 postImageRepository.save(postImage);
             }
-
-            // Return a success message
-
         }
-        if (savedPost == null){
-            return "null";
-        }
-        return "Post  saved successfully.";
+        return savedPost != null ? "Post saved successfully." : "Post saving failed.";
     }
-
-//    @Override
-//    public List<PostDTO> getPostsByUserIdWithImages(Long userId) {
-//        // Retrieve posts by user ID
-//        List<Post> posts = postRepository. findByUser_UserId(userId);
-//
-//        // Map Post entities to PostDTOs with images
-//        return posts.stream()
-//                .map(this::convertToDTOWithImages)
-//                .collect(Collectors.toList());
-//    }
 
     @Override
     public List<PostDTO> getPostsByUserIdWithImages(Long userId, int page, int size) {
         try {
-            // Create a pageable request with the given page number and size
             Pageable pageable = PageRequest.of(page, size);
-
-            // Retrieve posts by user ID with pagination
             Page<Post> postPage = postRepository.findByUser_UserId(userId, pageable);
 
             if (postPage.isEmpty()) {
-                return Collections.emptyList(); // Return an empty list if no posts are found
+                return Collections.emptyList();
             }
 
-
-            // Map Post entities to PostDTOs with images
             return postPage.getContent().stream()
                     .map(this::convertToDTOWithImages)
                     .collect(Collectors.toList());
 
         } catch (Exception e) {
-
             e.printStackTrace();
-
             throw new RuntimeException("Error retrieving posts", e);
         }
     }
-
 
     @Override
     public void deletePost(Long postId) {
         Post existingPost = postRepository.findById(postId)
                 .orElseThrow(() -> new RuntimeException("Post not found"));
-        if(existingPost != null){
-            postRepository.deleteById(postId);
-        }
-
+        postRepository.deleteById(postId);
     }
 
     @Override
@@ -149,75 +106,61 @@ public class PostServiceWithImageHandlingImpl  implements PostServiceWithImageHa
 
         Post savedPost = postRepository.save(existingPost);
 
-
-
         return convertToDTOWithImages(savedPost);
-
-    }
-
-
-
-    @Override
-    public Integer likecount(Long postId, PostDTO likecount, User userdeatils){
-        Post existingPost = postRepository.findById(postId)
-                .orElseThrow(() -> new RuntimeException("Post not found"));
-        existingPost.setLikesCount(likecount.getLikesCount()+1);
-
-        Post savedPost = postRepository.save(existingPost);
-
-        UserPostLikes  UserPostLikes= userPostLikesService.likePost(userdeatils,savedPost);
-
-        return  savedPost.getLikesCount();
     }
 
     @Override
-    public Integer unlikecount(Long postId, PostDTO likecount, User userdeatils){
+    public Integer likecount(Long postId, PostDTO likecount, User userDetails) {
         Post existingPost = postRepository.findById(postId)
                 .orElseThrow(() -> new RuntimeException("Post not found"));
-        existingPost.setLikesCount(likecount.getLikesCount()-1);
+        existingPost.setLikesCount(likecount.getLikesCount() + 1);
 
         Post savedPost = postRepository.save(existingPost);
+        userPostLikesService.likePost(userDetails, savedPost);
 
-        UserPostLikes  UserPostLikes= userPostLikesService.unlikePost(userdeatils,savedPost);
-
-        return  savedPost.getLikesCount();
+        return savedPost.getLikesCount();
     }
 
     @Override
-    public Integer commentcount(Long postId){
+    public Integer unlikecount(Long postId, PostDTO likecount, User userDetails) {
         Post existingPost = postRepository.findById(postId)
                 .orElseThrow(() -> new RuntimeException("Post not found"));
-        existingPost.setCommentsCount(existingPost.getCommentsCount()+1);
-
-
+        existingPost.setLikesCount(likecount.getLikesCount() - 1);
 
         Post savedPost = postRepository.save(existingPost);
+        userPostLikesService.unlikePost(userDetails, savedPost);
 
+        return savedPost.getLikesCount();
+    }
 
-        return  existingPost.getCommentsCount();
+    @Override
+    public Integer commentcount(Long postId) {
+        Post existingPost = postRepository.findById(postId)
+                .orElseThrow(() -> new RuntimeException("Post not found"));
+        existingPost.setCommentsCount(existingPost.getCommentsCount() + 1);
+
+        postRepository.save(existingPost);
+
+        return existingPost.getCommentsCount();
     }
 
     @Override
     public Integer newComment(Long postId, CommentDTO commentDTO, User userDetails) {
         Post existingPost = postRepository.findById(postId)
                 .orElseThrow(() -> new RuntimeException("Post not found"));
-        Comment comment = new Comment();
 
-        comment.setContent(comment.getContent());
+        Comment comment = new Comment();
+        comment.setContent(commentDTO.getContent());
         comment.setCreatedAt(Timestamp.valueOf(LocalDateTime.now()));
         comment.setUpdatedAt(null);
         comment.setParentCommentId(commentDTO.getParentCommentId());
         comment.setPost(existingPost);
         comment.setUser(userDetails);
 
-        Comment saveCommment = commentRepository.save(comment);
+        commentRepository.save(comment);
 
-       Integer commentCount = commentcount(postId);
-
-
-        return commentCount;
+        return commentcount(postId);
     }
-
 
     @Override
     public Comment unComment(User user, Post post) {
@@ -227,23 +170,19 @@ public class PostServiceWithImageHandlingImpl  implements PostServiceWithImageHa
         }
         return removeComment;
     }
+
     @Override
     public Integer removeComment(Long postId, CommentDTO commentDTO, User userDetails) {
-
         Post existingPost = postRepository.findById(postId)
                 .orElseThrow(() -> new RuntimeException("Post not found"));
-        Comment result = unComment(userDetails ,existingPost);
-        if(result != null){
-
-            existingPost.setLikesCount(existingPost.getLikesCount()-1);
-
-            Post savedPost = postRepository.save(existingPost);
-
-            return savedPost.getCommentsCount();
+        Comment result = unComment(userDetails, existingPost);
+        if (result != null) {
+            existingPost.setCommentsCount(existingPost.getCommentsCount() - 1);
+            postRepository.save(existingPost);
+            return existingPost.getCommentsCount();
         }
         return null;
     }
-
 
     @Override
     public Page<CommentDTO> getCommentsByPostId(Long postId, int page, int size) {
@@ -257,25 +196,18 @@ public class PostServiceWithImageHandlingImpl  implements PostServiceWithImageHa
 
     private CommentDTO convertToCommentDTO(Comment comment) {
         User user = comment.getUser();
-        Optional<Profile> profileOpt = Optional.ofNullable(profileRepository.findByUser_UserId(user.getUserId()));
+        Profile profile = profileRepository.findByUser_UserId(user.getUserId());
 
-        String avatar = null;
-        String fullName = null;
-        Integer profileId = null;
-
-        if (profileOpt.isPresent()) {
-            Profile profile = profileOpt.get();
-            avatar = profile.getAvatar();
-            fullName = profile.getFullName();
-            profileId = profile.getProfileId();
-        }
+        String avatar = profile != null ? profile.getAvatar() : null;
+        String fullName = profile != null ? profile.getFullName() : null;
+        Integer profileId = profile != null ? profile.getProfileId() : null;
 
         return CommentDTO.builder()
                 .commentId(comment.getCommentId())
                 .content(comment.getContent())
                 .createdAt(comment.getCreatedAt())
                 .updatedAt(comment.getUpdatedAt())
-                .parentCommentId(comment.getParentCommentId() != null ? comment.getParentCommentId() : null)
+                .parentCommentId(comment.getParentCommentId())
                 .postId(comment.getPost().getPostId())
                 .userId(user.getUserId())
                 .avatar(avatar)
@@ -285,15 +217,23 @@ public class PostServiceWithImageHandlingImpl  implements PostServiceWithImageHa
     }
 
     private PostDTO convertToDTOWithImages(Post post) {
-        User user=post.getUser();
         PostDTO postDTO = new PostDTO();
         postDTO.setPostId(post.getPostId());
         postDTO.setContent(post.getContent());
         postDTO.setCreatedAt(post.getCreatedAt().toLocalDateTime());
-        postDTO.setUpdatedAt(post.getUpdatedAt().toLocalDateTime());
+
+        // Handle potential null for updatedAt
+        if (post.getUpdatedAt() != null) {
+            postDTO.setUpdatedAt(post.getUpdatedAt().toLocalDateTime());
+        } else {
+            postDTO.setUpdatedAt(null);
+        }
+
         postDTO.setCommentsCount(post.getCommentsCount());
         postDTO.setLikesCount(post.getLikesCount());
-        postDTO.setPost_Like_Status(userPostLikesService.getLikePostByUser(user,post));
+
+        User user = post.getUser();
+        postDTO.setPost_Like_Status(userPostLikesService.getLikePostByUser(user, post));
 
         // Fetch associated images
         List<PostImage> postImages = postImageRepository.findByPost(post);
@@ -304,9 +244,6 @@ public class PostServiceWithImageHandlingImpl  implements PostServiceWithImageHa
 
         return postDTO;
     }
-
-
-
-
 }
+
 
